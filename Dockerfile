@@ -8,8 +8,7 @@ RUN python /tmp/model.py && rm /tmp/model.py
 RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/amazon_linux/lambda-insights-extension.rpm && \
     rpm -U lambda-insights-extension.rpm && \
     rm -f lambda-insights-extension.rpm
-COPY split.py ${LAMBDA_TASK_ROOT}
-COPY transcribe.py ${LAMBDA_TASK_ROOT}
+COPY parallelization.py ${LAMBDA_TASK_ROOT}
 COPY app.py ${LAMBDA_TASK_ROOT}
 # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
 CMD [ "app.handler" ]
