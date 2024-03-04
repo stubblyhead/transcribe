@@ -26,10 +26,10 @@ def handler(event, context):
         # Downloading file to transcribe
         s3.download_file(bucket, key, audio_file)
         device = "cpu"
-        model_size = 'large-v3'
+        model_size = 'medium.en'
         start_time = time.time()
         model = WhisperModel(model_size, device="cpu", compute_type="auto", download_root='/usr/local', local_files_only=True, cpu_threads = 3)
-        print(f"loaded large model in {time.time()-start_time:.02f} seconds, starting file {filename}")
+        print(f"loaded {model_size} model in {time.time()-start_time:.02f} seconds, starting file {filename}")
 
         start_time = time.time()
 #        segments, info = model.transcribe(audio_file, beam_size=5, language='en')
