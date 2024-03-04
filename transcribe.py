@@ -34,7 +34,7 @@ def transcribe_audio(input_file: str, max_processes = 0,
         segments = future.result()
         for seg in segments:
         #    result_string += "".join(segment.text for segment in segments)
-            result_string += "[%.2fs -> %.2fs] %s\n" % (seg.start, seg.end, seg.text)
+            result_string += f"{seg.text}\n"
 
     end = time.time()
     print(end - start)
