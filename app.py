@@ -4,9 +4,8 @@ import urllib.parse
 from faster_whisper import WhisperModel
 import boto3
 import time
-#import split
-#import transcribe
-import parallelization
+import split
+import transcribe
 
 dest_bucket = os.environ.get('DEST_BUCKET')
 silence_duration = float(os.environ.get('SILENCE_DURATION'))
@@ -27,7 +26,7 @@ def handler(event, context):
         # Downloading file to transcribe
         s3.download_file(bucket, key, audio_file)
         device = "cpu"
-        model_size = 'medium.en'
+        model_size = 'large-v3'
         start_time = time.time()
         model = WhisperModel(model_size, device="cpu", compute_type="auto", download_root='/usr/local', local_files_only=True, cpu_threads = 3)
         print(f"loaded large model in {time.time()-start_time:.02f} seconds, starting file {filename}")
@@ -39,7 +38,7 @@ def handler(event, context):
 #            output += ("[%.2fs -> %.2fs] %s\n" % (segment.start, segment.end, segment.text))
 
         max_processes = 3 
-        output = parallelization.transcribe_audio(audio_file, max_processes, silence_threshold=silence_threshold, silence_duration=silence_duration, model=model)
+        output = transcribe.transcribe_audio(audio_file, max_processes, silence_threshold=silence_threshold, silence_duration=silence_duration, model=model)
         object = s3.put_object(Bucket=dest_bucket, Key=f'text/{filename}.text', Body=output)
         os.remove(audio_file)
         print(f"finished {filename} in {time.time()-start_time:.02f} sec, wrote output to s3://{bucket}/text/{filename}.text")
@@ -47,7 +46,7 @@ def handler(event, context):
             # Generate a pre-signed URL for the S3 object
             expiration = 3600  # URL expiration time in seconds
             response = s3.generate_presigned_url('get_object',
-                                                    Params={'Bucket': bucket, 'Key': f'text/{filename}.text'},
+                                                    Params={'Bucket': dest_bucket, 'Key': f'text/{filename}.text'},
                                                     ExpiresIn=expiration)
 
             output = f"Transcribed: {filename}.text - {response}"
