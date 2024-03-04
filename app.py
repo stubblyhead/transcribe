@@ -39,9 +39,9 @@ def handler(event, context):
 
         max_processes = 3 
         output = transcribe.transcribe_audio(audio_file, max_processes, silence_threshold=silence_threshold, silence_duration=silence_duration, model=model)
-        object = s3.put_object(Bucket=dest_bucket, Key=f'text/{filename}.text', Body=output)
+        object = s3.put_object(Bucket=dest_bucket, Key=f'{key}.text', Body=output)
         os.remove(audio_file)
-        print(f"finished {filename} in {time.time()-start_time:.02f} sec, wrote output to s3://{bucket}/text/{filename}.text")
+        print(f"finished {filename} in {time.time()-start_time:.02f} sec, wrote output to s3://{dest_bucket}/{key}.text")
         try:
             # Generate a pre-signed URL for the S3 object
             expiration = 3600  # URL expiration time in seconds
