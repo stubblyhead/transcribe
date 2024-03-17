@@ -46,7 +46,7 @@ def get_silence_starts(input_file: str, silence_threshold: float, silence_durati
     silence_starts = [0.0]
 
     reader = ffmpeg.input(input_file).filter("silencedetect", n=silence_threshold, d=str(silence_duration)) \
-        .output("pipe:", format="null",v="error").global_args('-hide_banner').run_async(pipe_stderr=True)
+        .output("pipe:", format="null").global_args('-hide_banner').run_async(pipe_stderr=True)
 
 
     silence_end_re = re.compile(
