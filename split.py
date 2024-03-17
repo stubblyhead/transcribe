@@ -3,7 +3,7 @@ import re
 from typing import List
 import ffmpeg
 import time
-
+import shutil
 
 def find_optimal_breakpoints(points: List[float], n: int) -> List[float]:
     result = []
@@ -32,9 +32,13 @@ def save_chunk_to_temp_file(input_file: str, start: float, end: float, idx: int)
     filename, file_extension = os.path.splitext(input_file)
     temp_file = f'{filename}_{idx}{file_extension}'
     in_stream = ffmpeg.input(input_file)
-    ffmpeg.output(in_stream, temp_file, ss=start, t=end - start, c="copy") \
+    ffmpeg.output(in_stream, temp_file, ss=start, t=end - start, c="copy",v="error") \
         .global_args('-hide_banner').overwrite_output().run()
-
+    
+    if ffmpeg.probe(temp_file)['format']['duration'] == ffmpeg.probe(input_file)['format']['duration']:
+        shutil.move(temp_file,temp_file+".tmp")
+        ffmpeg.input(temp_file+".tmp").output(temp_file,**{'c:v': 'copy', 'c:a': file_extension[1:]},v='error') \
+        .global_args('-hide_banner').overwrite_output().run()
 
     return temp_file
 
@@ -42,7 +46,7 @@ def get_silence_starts(input_file: str, silence_threshold: float, silence_durati
     silence_starts = [0.0]
 
     reader = ffmpeg.input(input_file).filter("silencedetect", n=silence_threshold, d=str(silence_duration)) \
-        .output("pipe:", format="null").global_args('-hide_banner').run_async(pipe_stderr=True)
+        .output("pipe:", format="null",v="error").global_args('-hide_banner').run_async(pipe_stderr=True)
 
 
     silence_end_re = re.compile(
