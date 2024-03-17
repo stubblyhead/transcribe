@@ -1,5 +1,6 @@
 FROM public.ecr.aws/lambda/python:3.11
 RUN yum -y install git wget tar xz tree
+RUN pip install --no-cache-dir onnxruntime
 RUN pip install --no-cache-dir faster_whisper
 RUN pip install --no-cache-dir ffmpeg-python
 RUN wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz && tar xvf ffmpeg-release-arm64-static.tar.xz && mv ffmpeg-6.1-arm64-static/ff* /usr/bin && rm -Rf ffmpeg*
