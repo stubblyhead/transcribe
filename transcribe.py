@@ -1,4 +1,5 @@
 from faster_whisper import WhisperModel
+from faster_whisper.vad import VadOptions
 import ffmpeg
 from multiprocessing import cpu_count, Process, Pipe
 from typing import List
@@ -9,9 +10,10 @@ from split import split_audio_into_chunks
 
 
 def transcribe_file(file_path, model):
+    opts = VadOptions(max_speech_duration_s=20,min_silence_duration_ms=500,window_size_samples=1536)
     print(f'transcribing {os.path.basename(file_path)} from parallel process')
-    segments, info = model.transcribe(file_path)
-    print(f'finished transcribing {os.path.basename(file_path)}, a {info.duration} sec long audio file')
+    segments, info = model.transcribe(file_path, vad_filter=True, vad_parameters=opts)
+    print(f'finished chunking {os.path.basename(file_path)}, a {info.duration} sec long audio file')
     segments = list(segments)
     return segments
 
@@ -21,7 +23,7 @@ def transcribe_audio(input_file: str, max_processes = 0,
         max_processes = cpu_count()
 
     # Split the audio into chunks
-    print('splitting audio into chunks')
+    print(f'splitting audio into {max_processes} chunks')
     temp_files_array = split_audio_into_chunks(input_file, max_processes, silence_threshold, silence_duration)
     start = time.time()
     futures = []
