@@ -28,7 +28,9 @@ def handler(event, context):
         device = "cpu"
         model_size = 'medium.en'
         start_time = time.time()
-        model = WhisperModel(model_size, device="cpu", compute_type="auto", download_root='/usr/local', local_files_only=True, cpu_threads = 3)
+        model = WhisperModel(model_size, device="cpu", compute_type="auto", download_root='/usr/local', local_files_only=True, cpu_threads = 6)
+        #turn on debug logging
+        model.logger.setLevel(10)
         print(f"loaded {model_size} model in {time.time()-start_time:.02f} seconds, starting file {filename}")
 
         start_time = time.time()
@@ -37,7 +39,7 @@ def handler(event, context):
 #        for segment in segments:
 #            output += ("[%.2fs -> %.2fs] %s\n" % (segment.start, segment.end, segment.text))
 
-        max_processes = 3 
+        max_processes = 6 
         output = transcribe.transcribe_audio(audio_file, max_processes, silence_threshold=silence_threshold, silence_duration=silence_duration, model=model)
         object = s3.put_object(Bucket=dest_bucket, Key=f'{key}.text', Body=output)
         os.remove(audio_file)
