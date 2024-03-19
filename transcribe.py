@@ -10,9 +10,9 @@ from split import split_audio_into_chunks
 
 
 def transcribe_file(file_path, model):
-    opts = VadOptions(max_speech_duration_s=20,min_silence_duration_ms=500,window_size_samples=1536)
+#    opts = VadOptions(max_speech_duration_s=20,min_silence_duration_ms=500,window_size_samples=1536)
     print(f'transcribing {os.path.basename(file_path)} from parallel process')
-    segments, info = model.transcribe(file_path, vad_filter=True, vad_parameters=opts)
+    segments, info = model.transcribe(file_path) #, vad_filter=True, vad_parameters=opts)
     print(f'finished chunking {os.path.basename(file_path)}, a {info.duration} sec long audio file')
     segments = list(segments)
     return segments

@@ -6,6 +6,7 @@ import boto3
 import time
 import split
 import transcribe
+import subprocess
 
 dest_bucket = os.environ.get('DEST_BUCKET')
 silence_duration = float(os.environ.get('SILENCE_DURATION'))
@@ -16,6 +17,7 @@ def handler(event, context):
     print('## EVENT')
     print(event)
     try:
+        print(subprocess.run(['tree','-h','/tmp'],capture_output=True).stdout.decode())
         bucket = event["Records"][0]["s3"]["bucket"]["name"]
         key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
         print("Bucket:", bucket, "key:", key)
@@ -29,8 +31,6 @@ def handler(event, context):
         model_size = 'medium.en'
         start_time = time.time()
         model = WhisperModel(model_size, device="cpu", compute_type="auto", download_root='/usr/local', local_files_only=True, cpu_threads = 6)
-        #turn on debug logging
-        model.logger.setLevel(10)
         print(f"loaded {model_size} model in {time.time()-start_time:.02f} seconds, starting file {filename}")
 
         start_time = time.time()
