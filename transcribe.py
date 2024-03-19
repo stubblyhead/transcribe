@@ -9,7 +9,7 @@ from split import split_audio_into_chunks
 
 
 def transcribe_file(file_path, model):
-    segments, info = model.transcribe(file_path)
+    segments, info = model.transcribe(file_path, vad_filter=True)
     segments = list(segments)
     return segments
 
